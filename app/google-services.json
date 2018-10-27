@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "34976530991",
+    "firebase_url": "https://fir-practice-ccf34.firebaseio.com",
+    "project_id": "fir-practice-ccf34",
+    "storage_bucket": "fir-practice-ccf34.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34976530991:android:92ee4dc6ac9d01ec",
+        "android_client_info": {
+          "package_name": "com.edgeon.faiq.synchor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34976530991-0var2njj0v74n5emgr31n5jb2hikp6bb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVvLnBt_j_uCPSLeFqWWR8KdvxBqCTr4k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34976530991:android:92ddb8bb0c8367ec",
+        "android_client_info": {
+          "package_name": "com.example.faiq.firebasepractice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34976530991-0var2njj0v74n5emgr31n5jb2hikp6bb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVvLnBt_j_uCPSLeFqWWR8KdvxBqCTr4k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
