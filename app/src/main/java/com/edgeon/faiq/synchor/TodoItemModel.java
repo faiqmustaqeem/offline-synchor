@@ -3,7 +3,7 @@ package com.edgeon.faiq.synchor;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class TodoItemModel  extends RealmObject{
+public class TodoItemModel extends RealmObject {
     private String text;
     @PrimaryKey
     private long timestamp;

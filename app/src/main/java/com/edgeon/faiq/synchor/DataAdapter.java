@@ -7,30 +7,47 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> {
 
     List<TodoItemModel> list;
-    public DataAdapter(List<TodoItemModel> list)
-    {
-        this.list=list;
+
+    public DataAdapter(List<TodoItemModel> list) {
+        this.list = list;
     }
+
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.row_data , viewGroup , false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.row_data, viewGroup, false);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
-        TodoItemModel model=list.get(i);
+        TodoItemModel model = list.get(i);
         myViewHolder.text.setText(model.getText());
-        myViewHolder.date.setText(new Date(model.getTimestamp()).toString());
+        myViewHolder.date.setText(getDateCurrentTimeZone(model.getTimestamp()));
+    }
+
+    public String getDateCurrentTimeZone(long timestamp) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            TimeZone tz = TimeZone.getDefault();
+            calendar.setTimeInMillis(timestamp * 1000);
+            calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            Date currenTimeZone = calendar.getTime();
+            return sdf.format(currenTimeZone);
+        } catch (Exception ignored) {
+
+        }
+        return "";
     }
 
     @Override
@@ -42,11 +59,12 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> 
 
         TextView text;
         TextView date;
+
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            text=(TextView)itemView.findViewById(R.id.item_text);
-            date=(TextView)itemView.findViewById(R.id.date);
+            text = (TextView) itemView.findViewById(R.id.item_text);
+            date = (TextView) itemView.findViewById(R.id.date);
         }
     }
 }

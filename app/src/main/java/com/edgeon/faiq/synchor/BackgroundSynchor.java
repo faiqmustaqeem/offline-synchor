@@ -21,11 +21,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import io.realm.Realm;
 import io.realm.RealmResults;
+
 public class BackgroundSynchor extends Service {
 
-    public static boolean isServiceRunning=false;
+    public static boolean isServiceRunning = false;
     Realm realm;
     private DatabaseReference mDatabase;
     RealmResults<TodoItemModel> listItems;
@@ -48,16 +50,17 @@ public class BackgroundSynchor extends Service {
     }
 
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("LocalService", "Received start id " + startId + ": " + intent);
-        Log.e("service" , "service started here");
-        isServiceRunning=true;
+        Log.e("service", "service started here");
+        isServiceRunning = true;
 
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        realm=Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
+
+
         mDatabase.child("Tasks").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -68,7 +71,7 @@ public class BackgroundSynchor extends Service {
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 realm.beginTransaction();
                 TodoItemModelFirebase todoItemModelFirebase = dataSnapshot.getValue(TodoItemModelFirebase.class);
-                Log.e("data changed" , dataSnapshot.toString());
+                Log.e("data changed", dataSnapshot.toString());
                 TodoItemModel model = new TodoItemModel();
                 assert todoItemModelFirebase != null;
                 model.setSynced(true);
@@ -89,7 +92,6 @@ public class BackgroundSynchor extends Service {
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
 
-
             }
 
             @Override
@@ -103,35 +105,27 @@ public class BackgroundSynchor extends Service {
         runnable = () -> {
 
 
-            if(isStatusChanged()){
+            if (isStatusChanged()) {
 
-                Log.e("status" , "status change...");
-                    try
-                    {
-                        netAddress = new NetTask().execute("www.google.com").get();
-                        if(netAddress.equals(""))
-                        {
-                            Log.e("internet" , "not working");
-                        }
-                        else {
-                            Log.e("internet" , "working");
+                Log.e("status", "status change...");
+                try {
+                    netAddress = new NetTask().execute("www.google.com").get();
 
-                            sendUnsynchedDataToFirebase();
-                        }
+                    if (netAddress.equals("")) {
+                        Log.e("internet", "not working");
+                    } else {
+                        Log.e("internet", "working");
+
+                        sendUnsynchedDataToFirebase();
                     }
-                    catch (Exception e1)
-                    {
-                        e1.printStackTrace();
-                    }
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
 
 
+            } else {
 
-
-            }
-            else {
-
-                Log.e("status" , "no status change...");
-
+                Log.e("status", "no status change...");
 
             }
             handler.postDelayed(runnable, 5000);
@@ -141,39 +135,43 @@ public class BackgroundSynchor extends Service {
         return START_STICKY;
     }
 
-    public void clearDBAndSaveDataAgain() {
-        realm.executeTransaction(realm -> {
-            realm.delete(TodoItemModel.class);
+    public void updateData() {
 
-            saveData();
-
-        });
+        saveData();
     }
-    private void saveData(){
 
-        realm=Realm.getDefaultInstance();
-        realm.beginTransaction();
+    private void saveData() {
+
+        realm = Realm.getDefaultInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("Tasks").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                Log.e("datasnapshot" , dataSnapshot.toString());
-                for(DataSnapshot childsnapshot : dataSnapshot.getChildren()){
+                realm.beginTransaction();
 
-                    try{
-                        TodoItemModelFirebase todoItemModelFirebase= childsnapshot.getValue(TodoItemModelFirebase.class);
+                for (DataSnapshot childsnapshot : dataSnapshot.getChildren()) {
+
+                    try {
+                        TodoItemModelFirebase todoItemModelFirebase = childsnapshot.getValue(TodoItemModelFirebase.class);
 
                         assert todoItemModelFirebase != null;
-                        TodoItemModel model=realm.createObject(TodoItemModel.class,todoItemModelFirebase.getTimestamp());
+                        TodoItemModel model = new TodoItemModel();
+
                         model.setText(todoItemModelFirebase.getText());
+                        model.setTimestamp(todoItemModelFirebase.getTimestamp());
                         model.setSynced(true);
-                    }catch (Exception e)
-                    {
-                        Log.e("exception" , e.toString());
+                        realm.copyToRealmOrUpdate(model);
+
+
+                    } catch (Exception e) {
+                        Log.e("exception", e.toString());
                     }
+
                 }
+
                 realm.commitTransaction();
+
 
             }
 
@@ -186,52 +184,43 @@ public class BackgroundSynchor extends Service {
 
     }
 
-    private boolean isStatusChanged()
-    {
-        if(isNetworkAvailable(getApplicationContext()))
-        {
-            if(working) {
-                working=true;
+    private boolean isStatusChanged() {
+        if (isNetworkAvailable(getApplicationContext())) {
+            if (working) {
+                working = true;
                 return false;
             }
-            working=true;
+            working = true;
             return true;
         }
 
 
-        if(working)
-        {
-            working=false;
+        if (working) {
+            working = false;
             return true;
-        }
-        else {
-            working=false;
+        } else {
+            working = false;
             return false;
         }
 
     }
-    public  void addDataToFirebase(TodoItemModel model)
-    {
-        try
-        {
-            netAddress = new NetTask().execute("www.google.com").get();
-            if(netAddress.equals(""))
-            {
-                Log.e("internet" , "not working");
-            }
-            else {
-                Log.e("internet" , "working");
 
-                TodoItemModelFirebase todoItemModelFirebase= new TodoItemModelFirebase();
+    public void addDataToFirebase(TodoItemModel model) {
+        try {
+            netAddress = new NetTask().execute("www.google.com").get();
+            if (netAddress.equals("")) {
+                Log.e("internet", "not working");
+            } else {
+                Log.e("internet", "working");
+
+                TodoItemModelFirebase todoItemModelFirebase = new TodoItemModelFirebase();
                 todoItemModelFirebase.setTimestamp(model.getTimestamp());
                 todoItemModelFirebase.setText(model.getText());
                 todoItemModelFirebase.setSynced(model.isSynced());
-                if(realm==null)
-                {
-                    realm=Realm.getDefaultInstance();
+                if (realm == null) {
+                    realm = Realm.getDefaultInstance();
                 }
-                if(mDatabase==null)
-                {
+                if (mDatabase == null) {
                     mDatabase = FirebaseDatabase.getInstance().getReference();
                 }
                 mDatabase.child("Tasks").push().setValue(todoItemModelFirebase).addOnSuccessListener(aVoid -> {
@@ -240,66 +229,66 @@ public class BackgroundSynchor extends Service {
                     model.setSynced(true);
                     realm.copyToRealmOrUpdate(model);
                     realm.commitTransaction();
-                    Log.e("data addDataToFirebase" , model.getText());
+
 
                 }).addOnFailureListener(e -> {
-                    Log.e("failure" , e.toString());
+                    Log.e("failure", e.toString());
 
                 });
             }
-        }
-        catch (Exception e1)
-        {
+        } catch (Exception e1) {
             e1.printStackTrace();
         }
 
     }
-    private void sendUnsynchedDataToFirebase()
-    {
 
-        Log.e("service" , "sendUnsynchedDataToFirebase");
-        realm= Realm.getDefaultInstance();
+    private void sendUnsynchedDataToFirebase() {
+
+        Log.e("service", "sendUnsynchedDataToFirebase");
+        realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
         RealmResults<TodoItemModel> list = realm.where(TodoItemModel.class)
-                                        .equalTo("isSynced" , false)
-                                        .findAll();
+                .equalTo("isSynced", false)
+                .findAll();
+
 
         realm.commitTransaction();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
+        Log.e("list_size", list.size() + "");
 
+        if (list.size() == 0) {
+            updateData();
+        }
 
-        for(int i=0 ; i < list.size() ; i++ )
-         {
-             TodoItemModel model = list.get(i);
-             TodoItemModelFirebase todoItemModelFirebase=new TodoItemModelFirebase();
-             assert model != null;
-             todoItemModelFirebase.setSynced(model.isSynced());
-             todoItemModelFirebase.setText(model.getText());
-             todoItemModelFirebase.setTimestamp(model.getTimestamp());
-             int finalI = i;
-             mDatabase.child("Tasks").push().setValue(todoItemModelFirebase).addOnSuccessListener(aVoid -> {
-                 realm.beginTransaction();
-                 model.setSynced(true);
+        for (int i = 0; i < list.size(); i++) {
+            TodoItemModel model = list.get(i);
+            TodoItemModelFirebase todoItemModelFirebase = new TodoItemModelFirebase();
+            assert model != null;
+            todoItemModelFirebase.setSynced(model.isSynced());
+            todoItemModelFirebase.setText(model.getText());
+            todoItemModelFirebase.setTimestamp(model.getTimestamp());
+            int finalI = i;
+            mDatabase.child("Tasks").push().setValue(todoItemModelFirebase).addOnSuccessListener(aVoid -> {
+                realm.beginTransaction();
+                model.setSynced(true);
                 realm.copyToRealmOrUpdate(model);
-                 realm.commitTransaction();
-                Log.e("data sendUnsynchedData" , model.getText());
+                realm.commitTransaction();
+                Log.e("data sendUnsynchedData", model.getText());
 
-                if(finalI == list.size()-1)
-                {
-                 clearDBAndSaveDataAgain();
+                if (finalI == list.size() - 1) {
+                    updateData();
                 }
 
-             }).addOnFailureListener(e -> {
-                 Log.e("failure" , e.toString());
-                 if(finalI == list.size()-1)
-                 {
-                     clearDBAndSaveDataAgain();
-                 }
-             });
-         }
+            }).addOnFailureListener(e -> {
+                Log.e("failure", e.toString());
+                if (finalI == list.size() - 1) {
+                    updateData();
+                }
+            });
+        }
 
 
     }
@@ -311,19 +300,13 @@ public class BackgroundSynchor extends Service {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public static class NetTask extends AsyncTask<String, Integer, String>
-    {
+    public static class NetTask extends AsyncTask<String, Integer, String> {
         @Override
-        protected String doInBackground(String... params)
-        {
+        protected String doInBackground(String... params) {
             InetAddress addr = null;
-            try
-            {
+            try {
                 addr = InetAddress.getByName(params[0]);
-            }
-
-            catch (UnknownHostException e)
-            {
+            } catch (UnknownHostException e) {
                 e.printStackTrace();
                 return "";
             }

@@ -12,6 +12,5 @@ public class ApplicationClass extends Application {
         Realm.init(getApplicationContext());
 
 
-
     }
 }
