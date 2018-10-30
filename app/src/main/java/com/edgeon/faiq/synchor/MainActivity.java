@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -27,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     Realm realm;
     BackgroundSynchor synchor;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,18 +39,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.rvData);
 
         btnAdd.setOnClickListener(v -> {
-            realm.beginTransaction();  //open the database
 
-
-            long timestamp = System.currentTimeMillis();
-            TodoItemModel model = realm.createObject(TodoItemModel.class, timestamp);
+            TodoItemModel model = new TodoItemModel();
             model.setText(editText.getText().toString());
             model.setSynced(false);
+            long timestamp = System.currentTimeMillis();
 
-            synchor.addDataToFirebase(model);
 
+            synchor.addData(model, timestamp);
 
-            realm.commitTransaction();
 
             Toast.makeText(MainActivity.this, "Data added", Toast.LENGTH_SHORT).show();
             editText.setText("");

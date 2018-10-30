@@ -24,9 +24,7 @@
 
         </activity>
 
-        <service
-            android:name="com.novoda.merlin.service.MerlinService"
-            android:exported="false" />
+
         <service
             android:name=".BackgroundSynchor"
             android:enabled="true" />
@@ -38,6 +36,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:exported="false"
+            android:name="com.novoda.merlin.service.MerlinService" />
     </application>
 
 </manifest>
