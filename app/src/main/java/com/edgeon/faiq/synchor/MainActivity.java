@@ -38,26 +38,23 @@ public class MainActivity extends AppCompatActivity {
         btnAdd = findViewById(R.id.btn_add);
         recyclerView = (RecyclerView) findViewById(R.id.rvData);
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                realm.beginTransaction();  //open the database
+        btnAdd.setOnClickListener(v -> {
+            realm.beginTransaction();  //open the database
 
 
-                long timestamp = System.currentTimeMillis();
-                TodoItemModel model = realm.createObject(TodoItemModel.class, timestamp);
-                model.setText(editText.getText().toString());
-                model.setSynced(false);
+            long timestamp = System.currentTimeMillis();
+            TodoItemModel model = realm.createObject(TodoItemModel.class, timestamp);
+            model.setText(editText.getText().toString());
+            model.setSynced(false);
 
-                synchor.addDataToFirebase(model);
+            synchor.addDataToFirebase(model);
 
 
-                realm.commitTransaction();
+            realm.commitTransaction();
 
-                Toast.makeText(MainActivity.this, "Data added", Toast.LENGTH_SHORT).show();
-                editText.setText("");
+            Toast.makeText(MainActivity.this, "Data added", Toast.LENGTH_SHORT).show();
+            editText.setText("");
 
-            }
         });
 
         RealmResults<TodoItemModel> results = realm.where(TodoItemModel.class).findAllAsync();

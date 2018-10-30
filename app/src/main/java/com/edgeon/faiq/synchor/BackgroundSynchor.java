@@ -114,6 +114,7 @@ public class BackgroundSynchor extends Service {
                     if (netAddress.equals("")) {
                         Log.e("internet", "not working");
                     } else {
+
                         Log.e("internet", "working");
 
                         sendUnsynchedDataToFirebase();
@@ -271,6 +272,8 @@ public class BackgroundSynchor extends Service {
             todoItemModelFirebase.setText(model.getText());
             todoItemModelFirebase.setTimestamp(model.getTimestamp());
             int finalI = i;
+
+
             mDatabase.child("Tasks").push().setValue(todoItemModelFirebase).addOnSuccessListener(aVoid -> {
                 realm.beginTransaction();
                 model.setSynced(true);
@@ -301,6 +304,8 @@ public class BackgroundSynchor extends Service {
     }
 
     public static class NetTask extends AsyncTask<String, Integer, String> {
+
+
         @Override
         protected String doInBackground(String... params) {
             InetAddress addr = null;
